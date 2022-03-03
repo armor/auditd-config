@@ -6,8 +6,8 @@ for (let i = 0; i < baseConfig.plugins.length; i++) {
       successComment: false,
       failComment: false,
       assets: [{
-        path: 'quantum-sec.rules',
-        label: 'Quantum Security Auditd rules'
+        path: 'auditd-config.zip',
+        label: 'Quantum Security Auditd Config'
       }]
     };
   }
