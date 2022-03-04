@@ -20,5 +20,6 @@ jobs:
     parameters:
       validationSteps:
         - script: |
+            set -e
             zip auditd-config.zip ./config/*
           displayName: Package Bootstrap Scripts
