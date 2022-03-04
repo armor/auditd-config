@@ -20,7 +20,5 @@ jobs:
     parameters:
       validationSteps:
         - script: |
-            mkdir -p bootstrap
-            rsync -a --prune-empty-dirs --include '*/' --include '*.sh' --include '*.ps1' --exclude '*' setup/ bootstrap/
-            zip -r bootstrap-scripts.zip ./bootstrap
+            zip auditd-config.zip ./config/*
           displayName: Package Bootstrap Scripts
