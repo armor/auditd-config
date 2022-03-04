@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+PACKAGE_INSTALLER=
+AUDITD_CONFIG_FILE=
+AUDITD_RULE_DIR=
+QUANTUM_RULES_FILE=
+RESTART_AUDITD_COMMAND=
+
+# Eye candy
+function display_installation_step() {
+  echo
+  echo '------------------------------------------------------------'
+  echo "$1"
+  echo '------------------------------------------------------------'
+}
+
+# Set some variables depending on the host OS
+function set_os_vars() {
+  display_installation_step "Checking OS"
+
+  local sc
+
+  # Is OS Centos/Redhat like?
+  yum -v > /dev/null 2>&1
+  sc=$?
+  if [ "$sc" -eq 0 ]; then
+    PACKAGE_INSTALLER=yum
+  fi
+
+  # Is OS Ubuntu-like?
+  apt-get -v  > /dev/null 2>&1
+  sc=$?
+  if [ "$sc" -eq 0 ]; then
+    PACKAGE_INSTALLER=apt
+    AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
+    AUDITD_RULE_DIR='/etc/audit/rules.d'
+    QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
+    RESTART_AUDITD_COMMAND='systemctl restart auditd'
+  fi
+
+  # We don't support other OSes
+  if [ -z "$PACKAGE_INSTALLER" ]; then
+    echo "We currently do not support this OS"
+    exit 1
+  fi
+}
+
+# Check if the user can sudo
+function check_sudo() {
+  display_installation_step "Checking user privileges"
+
+  local sc
+
+  sudo true
+  sc=$?
+  if [ "$sc" -ne 0 ]; then
+    echo "sudo privileges are required to run this script."
+    exit 2
+  fi
+}
+
+function install_auditd_with_apt() {
+  display_installation_step "Installing Auditd"
+  sudo apt-get -y install \
+    auditd \
+    curl
+
+}
+
+function configure_auditd_with_os_specific_config() {
+  case "$PACKAGE_INSTALLER" in
+  apt)
+    ;;
+  yum)
+    sudo sed -i '/## RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
+    ;;
+  esac
+
+}
+
+function configure_auditd_with_quantum_rules() {
+  display_installation_step "Configuring with Auditd Quantum rules"
+
+  trap "sudo chmod 640 $QUANTUM_RULES_FILE $AUDITD_CONFIG_FILE" RETURN
+  curl https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/auditd.conf \
+  | sudo tee "$AUDITD_CONFIG_FILE" > /dev/null
+
+  curl https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/quantum_auditd.rules \
+  | sudo tee "$QUANTUM_RULES_FILE" > /dev/null
+}
+
+function restart_auditd() {
+  display_installation_step "Restarting Auditd"
+
+  eval "sudo $RESTART_AUDITD_COMMAND"
+}
+
+function install_auditd() {
+  case "$PACKAGE_INSTALLER" in
+  apt)
+    install_auditd_with_apt
+    ;;
+  yum)
+    echo installing with YUM
+    ;;
+  esac
+}
+
+set_os_vars
+check_sudo
+install_auditd
+configure_auditd_with_os_specific_config
+configure_auditd_with_quantum_rules
+restart_auditd
