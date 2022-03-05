@@ -17,3 +17,9 @@ resources:
 
 jobs:
   - template: templates/jobs/default.yml@pipeline-library
+    parameters:
+      validationSteps:
+        - script: |
+            set -e
+            (cd config; zip ../auditd-config.zip ./*)
+          displayName: Package Bootstrap Scripts
