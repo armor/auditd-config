@@ -72,7 +72,7 @@ function configure_auditd_with_os_specific_config() {
   apt)
     ;;
   yum)
-    sudo sed -i '/## RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
+    sudo sed -i '/## DO NOT REMOVE!!! RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
     ;;
   esac
 
@@ -87,6 +87,12 @@ function configure_auditd_with_quantum_rules() {
 
   curl https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/quantum_auditd.rules \
   | sudo tee "$QUANTUM_RULES_FILE" > /dev/null
+}
+
+function enable_newer_auditd_config() {
+  if [[ "$AUDITD_VERSION" =~ ^auditctl\ version\ 3.*$ ]]; then
+    sudo sed -i '/## DO NOT REMOVE!!! AUDITD 3.0 ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
+  fi
 }
 
 function restart_auditd() {
@@ -109,6 +115,8 @@ function install_auditd() {
 set_os_vars
 check_sudo
 install_auditd
+AUDITD_VERSION=$(sudo auditctl -v)
 configure_auditd_with_os_specific_config
 configure_auditd_with_quantum_rules
+enable_newer_auditd_config
 restart_auditd
