@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+OS_NAME=
 PACKAGE_INSTALLER=
 AUDITD_CONFIG_FILE=
 AUDITD_RULE_DIR=
@@ -18,19 +19,21 @@ function display_installation_step() {
 function set_os_vars() {
   display_installation_step "Checking OS"
 
-  local sc
+  source /etc/os-release
 
   # Is OS Centos/Redhat like?
-  yum -v > /dev/null 2>&1
-  sc=$?
-  if [ "$sc" -eq 0 ]; then
+  if [ "$NAME" == "CentOS Linux"]; then
+    OS_NAME='CentOS'
     PACKAGE_INSTALLER=yum
+    AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
+    AUDITD_RULE_DIR='/etc/audit/rules.d'
+    QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
+    RESTART_AUDITD_COMMAND='systemctl restart auditd'
   fi
 
   # Is OS Ubuntu-like?
-  apt-get -v  > /dev/null 2>&1
-  sc=$?
-  if [ "$sc" -eq 0 ]; then
+  if [ "$NAME" == "Ubuntu" ]; then
+    OS_NAME='Ubuntu'
     PACKAGE_INSTALLER=apt
     AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
     AUDITD_RULE_DIR='/etc/audit/rules.d'
@@ -39,7 +42,7 @@ function set_os_vars() {
   fi
 
   # We don't support other OSes
-  if [ -z "$PACKAGE_INSTALLER" ]; then
+  if [ -z "$OS_NAME" ]; then
     echo "We currently do not support this OS"
     exit 1
   fi
@@ -68,10 +71,10 @@ function install_auditd_with_apt() {
 }
 
 function configure_auditd_with_os_specific_config() {
-  case "$PACKAGE_INSTALLER" in
-  apt)
+  case "$OS_NAME" in
+  Ubuntu)
     ;;
-  yum)
+  CentOS)
     sudo sed -i '/## DO NOT REMOVE!!! RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
     ;;
   esac
