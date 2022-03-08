@@ -62,14 +62,6 @@ function check_sudo() {
   fi
 }
 
-function install_auditd_with_apt() {
-  display_installation_step "Installing Auditd"
-  sudo apt-get -y install \
-    auditd \
-    curl
-
-}
-
 function configure_auditd_with_os_specific_config() {
   case "$OS_NAME" in
   Ubuntu)
@@ -78,7 +70,6 @@ function configure_auditd_with_os_specific_config() {
     sudo sed -i '/## DO NOT REMOVE!!! RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
     ;;
   esac
-
 }
 
 function configure_auditd_with_quantum_rules() {
@@ -105,12 +96,18 @@ function restart_auditd() {
 }
 
 function install_auditd() {
+  display_installation_step "Installing Auditd"
+
   case "$PACKAGE_INSTALLER" in
   apt)
-    install_auditd_with_apt
+    sudo apt-get -y install \
+      auditd \
+      curl
     ;;
   yum)
-    echo installing with YUM
+    sudo yum -y install \
+      auditd \
+      curl
     ;;
   esac
 }
