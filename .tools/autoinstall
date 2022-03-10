@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 OS_NAME=
 PACKAGE_INSTALLER=
