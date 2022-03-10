@@ -38,7 +38,8 @@ function set_os_vars() {
 
   # We don't support other OSes
   if [ -z "$OS_NAME" ]; then
-    echo "We currently do not support this OS"
+    echo "We currently do not support this OS ($OS_NAME)"
+    echo "Supported OSes: CentOS 7, CentOS 8, Ubuntu 18, Ubuntu 20."
     exit 1
   fi
 }
