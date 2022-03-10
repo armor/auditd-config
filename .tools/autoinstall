@@ -22,7 +22,7 @@ function set_os_vars() {
   source /etc/os-release
 
   # Is OS Centos/Redhat like?
-  if [ "$NAME" == "CentOS Linux"]; then
+  if [ "$NAME" == "CentOS Linux" ]; then
     OS_NAME='CentOS'
     PACKAGE_INSTALLER=yum
     AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
