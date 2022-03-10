@@ -3,9 +3,9 @@ set -e
 
 OS_NAME=
 PACKAGE_INSTALLER=
-AUDITD_CONFIG_FILE=
-AUDITD_RULE_DIR=
-QUANTUM_RULES_FILE=
+readonly AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
+readonly AUDITD_RULE_DIR='/etc/audit/rules.d'
+readonly QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
 RESTART_AUDITD_COMMAND=
 
 # Eye candy
@@ -26,9 +26,6 @@ function set_os_vars() {
   if [ "$NAME" == "CentOS Linux" ]; then
     OS_NAME='CentOS'
     PACKAGE_INSTALLER=yum
-    AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
-    AUDITD_RULE_DIR='/etc/audit/rules.d'
-    QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
     RESTART_AUDITD_COMMAND='service auditd restart'
   fi
 
@@ -36,9 +33,6 @@ function set_os_vars() {
   if [ "$NAME" == "Ubuntu" ]; then
     OS_NAME='Ubuntu'
     PACKAGE_INSTALLER=apt
-    AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
-    AUDITD_RULE_DIR='/etc/audit/rules.d'
-    QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
     RESTART_AUDITD_COMMAND='systemctl restart auditd'
   fi
 
