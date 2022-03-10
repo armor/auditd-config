@@ -117,7 +117,7 @@ set_os_vars
 check_sudo
 install_auditd
 AUDITD_VERSION=$(sudo auditctl -v)
-configure_auditd_with_os_specific_config
 configure_auditd_with_quantum_rules
+configure_auditd_with_os_specific_config
 enable_newer_auditd_config
 restart_auditd
