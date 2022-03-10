@@ -29,7 +29,7 @@ function set_os_vars() {
     AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
     AUDITD_RULE_DIR='/etc/audit/rules.d'
     QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
-    RESTART_AUDITD_COMMAND='systemctl restart auditd'
+    RESTART_AUDITD_COMMAND='service auditd restart'
   fi
 
   # Is OS Ubuntu-like?
