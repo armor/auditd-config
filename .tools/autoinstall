@@ -76,7 +76,7 @@ function configure_auditd_with_os_specific_config() {
 function configure_auditd_with_quantum_rules() {
   display_installation_step "Configuring with Auditd Quantum rules"
 
-  trap "sudo chmod 640 $QUANTUM_RULES_FILE $AUDITD_CONFIG_FILE" RETURN
+  trap "sudo chmod 640 $QUANTUM_RULES_FILE $AUDITD_CONFIG_FILE; trap - RETURN" RETURN
   curl https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/auditd.conf \
   | sudo tee "$AUDITD_CONFIG_FILE" > /dev/null
 
