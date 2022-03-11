@@ -6,7 +6,6 @@ PACKAGE_INSTALLER=
 readonly AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
 readonly AUDITD_RULE_DIR='/etc/audit/rules.d'
 readonly QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
-RESTART_AUDITD_COMMAND=
 
 # Eye candy
 function display_installation_step() {
@@ -27,14 +26,12 @@ function set_os_vars() {
   if [ "$NAME" == "CentOS Linux" ]; then
     OS_NAME='CentOS'
     PACKAGE_INSTALLER=yum
-    RESTART_AUDITD_COMMAND='service auditd restart'
   fi
 
   # Is OS Ubuntu-like?
   if [ "$NAME" == "Ubuntu" ]; then
     OS_NAME='Ubuntu'
     PACKAGE_INSTALLER=apt
-    RESTART_AUDITD_COMMAND='systemctl restart auditd'
   fi
 
   # We don't support other OSes
@@ -90,7 +87,14 @@ function enable_newer_auditd_config() {
 function restart_auditd() {
   display_installation_step "Restarting Auditd"
 
-  eval "sudo $RESTART_AUDITD_COMMAND"
+  case "$OS_NAME" in
+  Ubuntu)
+    sudo systemctl restart auditd
+    ;;
+  CentOS)
+    sudo service auditd restart
+    ;;
+  esac
 }
 
 function install_auditd() {
