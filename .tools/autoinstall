@@ -20,6 +20,7 @@ function display_installation_step() {
 function set_os_vars() {
   display_installation_step "Checking OS"
 
+  # shellcheck disable=SC1091
   source /etc/os-release
 
   # Is OS Centos/Redhat like?
@@ -71,6 +72,7 @@ function configure_auditd_with_os_specific_config() {
 function configure_auditd_with_quantum_rules() {
   display_installation_step "Configuring with Auditd Quantum rules"
 
+  # shellcheck disable=SC2064
   trap "sudo chmod 640 $QUANTUM_RULES_FILE $AUDITD_CONFIG_FILE; trap - RETURN" RETURN
   curl -s https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/auditd.conf \
   | sudo tee "$AUDITD_CONFIG_FILE" > /dev/null
