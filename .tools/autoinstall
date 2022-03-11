@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+set -e
+
+OS_NAME=
+PACKAGE_INSTALLER=
+readonly AUDITD_CONFIG_FILE='/etc/audit/auditd.conf'
+readonly AUDITD_RULE_DIR='/etc/audit/rules.d'
+readonly QUANTUM_RULES_FILE="$AUDITD_RULE_DIR/quantum_auditd.rules"
+
+# Eye candy
+function display_installation_step() {
+  echo
+  echo '------------------------------------------------------------'
+  echo "$1"
+  echo '------------------------------------------------------------'
+}
+
+# Set some variables depending on the host OS
+function set_os_vars() {
+  display_installation_step "Checking OS"
+
+  # shellcheck disable=SC1091
+  source /etc/os-release
+
+  # Is OS Centos/Redhat like?
+  if [ "$NAME" == "CentOS Linux" ]; then
+    OS_NAME='CentOS'
+    PACKAGE_INSTALLER=yum
+  fi
+
+  # Is OS Ubuntu-like?
+  if [ "$NAME" == "Ubuntu" ]; then
+    OS_NAME='Ubuntu'
+    PACKAGE_INSTALLER=apt
+  fi
+
+  # We don't support other OSes
+  if [ -z "$OS_NAME" ]; then
+    echo "We currently do not support this OS ($OS_NAME)"
+    echo "Supported OSes: CentOS 7, CentOS 8, Ubuntu 18, Ubuntu 20."
+    exit 1
+  fi
+}
+
+# Check if the user can sudo
+function check_sudo() {
+  display_installation_step "Checking user privileges"
+
+  local sc
+
+  sudo true
+  sc=$?
+  if [ "$sc" -ne 0 ]; then
+    echo "sudo privileges are required to run this script."
+    exit 2
+  fi
+}
+
+function configure_auditd_with_os_specific_config() {
+  case "$OS_NAME" in
+  Ubuntu)
+    ;;
+  CentOS)
+    sudo sed -i '/## DO NOT REMOVE!!! RED HAT ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
+    ;;
+  esac
+}
+
+function configure_auditd_with_quantum_rules() {
+  display_installation_step "Configuring with Auditd Quantum rules"
+
+  # shellcheck disable=SC2064
+  trap "sudo chmod 640 $QUANTUM_RULES_FILE $AUDITD_CONFIG_FILE; trap - RETURN" RETURN
+  curl -s https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/auditd.conf \
+  | sudo tee "$AUDITD_CONFIG_FILE" > /dev/null
+
+  curl -s https://raw.githubusercontent.com/quantum-sec/auditd-config/master/config/quantum_auditd.rules \
+  | sudo tee "$QUANTUM_RULES_FILE" > /dev/null
+}
+
+function enable_newer_auditd_config() {
+  if [[ "$AUDITD_VERSION" =~ ^auditctl\ version\ 3.*$ ]]; then
+    sudo sed -i '/## DO NOT REMOVE!!! AUDITD 3.0 ONLY ##/ s/^#//' "$AUDITD_CONFIG_FILE"
+  fi
+}
+
+function restart_auditd() {
+  display_installation_step "Restarting Auditd"
+
+  case "$OS_NAME" in
+  Ubuntu)
+    sudo systemctl restart auditd
+    ;;
+  CentOS)
+    sudo service auditd restart
+    ;;
+  esac
+}
+
+function install_auditd() {
+  display_installation_step "Installing Auditd"
+
+  case "$PACKAGE_INSTALLER" in
+  apt)
+    sudo apt-get -y install \
+      auditd \
+      curl
+    ;;
+  yum)
+    sudo yum -y install \
+      auditd \
+      curl
+    ;;
+  esac
+}
+
+function main() {
+  set_os_vars
+  check_sudo
+  install_auditd
+  AUDITD_VERSION=$(sudo auditctl -v)
+  configure_auditd_with_quantum_rules
+  configure_auditd_with_os_specific_config
+  enable_newer_auditd_config
+  restart_auditd
+}
+
+main
