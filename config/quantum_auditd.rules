@@ -1,5 +1,14 @@
 # This file is managed by Quantum Security's infrastructure module
 # Version: $Id: audit.rules # 2022-02-10 alicia.smith@quantum.security $
+#
+# Based on rulesets from the following repositories:
+#   Neo23x0/auditd
+#       https://github.com/Neo23x0/auditd/blob/master/audit.rules
+#   bfuzzy/auditd-attack
+#       https://github.com/bfuzzy/auditd-attack/blob/master/auditd-attack.rules
+#   linux-audit/audit-userspace
+#       https://github.com/linux-audit/audit-userspace/blob/master/rules/30-pci-dss-v31.rules
+#
 # Ruleset includes:
 # pci-dss v3.1 auditing requirements
 # mitre ATT&CK map
