@@ -169,11 +169,6 @@ function configure_laurel_with_os_specific_config() {
   esac
 }
 
-function kill_auditd() {
-  display_installation_step "Restarting Auditd"
-  sudo pkill -HUP auditd
-}
-
 function main() {
   set_os_vars
   check_sudo
@@ -187,7 +182,7 @@ function main() {
     install_laurel
     configure_laurel
     configure_laurel_with_os_specific_config
-    kill_auditd
+    restart_auditd
   fi
 }
 
