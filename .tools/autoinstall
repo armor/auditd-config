@@ -129,18 +129,27 @@ function configure_laurel() {
   display_installation_step "Configuring Laurel"
 
   readonly LAUREL_CONFIG_FILE='/etc/laurel/config.toml'
-  readonly AUDITD_PLUGIN_DIR='/etc/audisp/plugins.d'
-
-  trap 'sudo chmod 640 $LAUREL_CONFIG_FILE "$AUDITD_PLUGIN_DIR"/laurel.conf; trap - RETURN' RETURN
-
   sudo mkdir /etc/laurel
   curl -s https://raw.githubusercontent.com/quantum-sec/laurel/master/etc/laurel/config.toml \
   | sudo tee "$LAUREL_CONFIG_FILE" > /dev/null
   sudo sed -i "s/\(read-users *= *\).*/\1\[ \"$(whoami)\" \]/" "$LAUREL_CONFIG_FILE"
 
-  curl -s https://raw.githubusercontent.com/quantum-sec/laurel/master/etc/audit/plugins.d/laurel.conf \
-  | sudo tee "$AUDITD_PLUGIN_DIR"/laurel.conf > /dev/null
-  sudo sed -i '/#dispatcher/s/^#//g' "$AUDITD_CONFIG_FILE"
+  case "$OS_NAME" in
+  Ubuntu)
+    AUDITD_PLUGIN_DIR='/etc/audisp/plugins.d'
+    trap 'sudo chmod 640 $LAUREL_CONFIG_FILE "$AUDITD_PLUGIN_DIR"/laurel.conf; trap - RETURN' RETURN
+    curl -s https://raw.githubusercontent.com/quantum-sec/laurel/master/etc/audit/plugins.d/laurel.conf \
+    | sudo tee "$AUDITD_PLUGIN_DIR"/laurel.conf > /dev/null
+    sudo sed -i '/#dispatcher/s/^#//g' "$AUDITD_CONFIG_FILE"
+    ;;
+  CentOS)
+    AUDITD_PLUGIN_DIR='/etc/audit/plugins.d'
+    trap 'sudo chmod 640 $LAUREL_CONFIG_FILE "$AUDITD_PLUGIN_DIR"/laurel.conf; trap - RETURN' RETURN
+    curl -s https://raw.githubusercontent.com/quantum-sec/laurel/master/etc/audit/plugins.d/laurel.conf \
+    | sudo tee "$AUDITD_PLUGIN_DIR"/laurel.conf > /dev/null
+    sudo sed -i '/#plugin_dir/s/^#//g' "$AUDITD_CONFIG_FILE"
+    ;;
+  esac
 }
 
 function configure_laurel_with_os_specific_config() {
