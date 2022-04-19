@@ -152,7 +152,7 @@ function configure_laurel_with_os_specific_config() {
     sudo yum -y install make
     TEMP_DIR="$(mktemp -d)"
     trap 'rm -rf "$TEMP_DIR"' EXIT
-    git clone https://github.com/threathunters-io/laurel.git "$TEMP_DIR"/laurel
+    git clone https://github.com/quantum-sec/laurel.git "$TEMP_DIR"/laurel
     make -C "$TEMP_DIR"/laurel/contrib/selinux
     sudo semodule -i "$TEMP_DIR"/laurel/contrib/selinux/laurel.pp
     sudo restorecon -v -R -F /usr/local/sbin/laurel /etc/laurel /var/log/laurel
