@@ -108,7 +108,8 @@ function install_auditd() {
     ;;
   yum)
     sudo yum -y install \
-      auditd \
+      audit \
+      audit-libs \
       curl
     ;;
   esac
