@@ -1,0 +1,17 @@
+name: Continuous Deployment
+on:
+  workflow_run:
+    workflows: [Continuous Integration]
+    types: [completed]
+    branches: [main, master]
+    name: Continuous Deployment
+
+jobs:
+  cd:
+    name: Release
+    uses: cncsc/actions/.github/workflows/semantic-release.yaml@main
+    with:
+      environment: prod
+    secrets:
+      GIT_TOKEN_BASIC: ${{ secrets.GIT_TOKEN_BASIC }} # required
+      NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN_QS }} # optional

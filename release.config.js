@@ -1,4 +1,4 @@
-const baseConfig = require('@quantum-sec/semantic-release-config/base');
+const baseConfig = require('@cncsc/semantic-release-config/base');
 
 for (let i = 0; i < baseConfig.plugins.length; i++) {
   if (baseConfig.plugins[i][0] === '@semantic-release/github') {

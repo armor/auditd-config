@@ -2,3 +2,6 @@
 .idea
 
 auditd-config.zip
+
+# Dependency directories
+node_modules/
