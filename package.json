@@ -3,8 +3,14 @@
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
-    "url": "git@github.com:quantum-sec/auditd-config.git"
+    "url": "git@github.com:armor/auditd-config.git"
   },
-  "author": "Quantum Security Pte. Ltd.",
-  "license": "SEE LICENSE IN LICENSE"
+  "author": "Armor Defense, Inc.",
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "@cncsc/semantic-release-config": "^1.0.3",
+    "@quantum-sec/azure-devops-coverage-transform": "^1.1.0",
+    "@semantic-release/github": "^8.1.0",
+    "semantic-release": "^21.1.2"
+  }
 }

@@ -1,0 +1,12 @@
+name: Continuous Integration
+on:
+  - push
+
+jobs:
+  ci:
+    name: Validation
+    uses: cncsc/actions/.github/workflows/validation.yaml@main
+    with:
+      runPreCommit: true
+      runDefaultLinters: false
+      runDefaultTests: false
